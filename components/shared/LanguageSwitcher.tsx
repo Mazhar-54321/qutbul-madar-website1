@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,14 +8,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCurrentLocale, useChangeLocale } from "@/locales/client";
-import { usePathname } from "next/navigation";
+import { useLocale } from "@/lib/useTranslations";
+import { usePathname, useRouter } from "next/navigation";
 import { languages } from "@/lib/languages";
 
 export default function LanguageSwitcher() {
-  const currentLocale = useCurrentLocale();
-  const changeLocale = useChangeLocale();
+  const currentLocale = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
 
   // Show current language in button
   const activeLang =
@@ -27,15 +26,20 @@ export default function LanguageSwitcher() {
 
     // Extract path without locale
     const segments = pathname.split("/").filter(Boolean);
-    let pathWithoutLocale = pathname;
+    let pathWithoutLocale = "/";
 
     // Remove current locale from path if present
     if (segments.length > 0 && languages.some((l) => l.code === segments[0])) {
       pathWithoutLocale = "/" + segments.slice(1).join("/");
+    } else {
+      pathWithoutLocale = pathname;
     }
 
-    // Change locale (next-international handles routing automatically)
-    changeLocale(newLocale as any);
+    // Build new path with new locale
+    const newPath = `/${newLocale}${pathWithoutLocale === "/" ? "" : pathWithoutLocale}`;
+
+    // Navigate to new locale
+    router.push(newPath);
   };
 
   return (

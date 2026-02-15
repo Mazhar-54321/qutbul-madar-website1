@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/accordion";
 import LanguageSwitcher from "../shared/LanguageSwitcher";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { useI18n, useCurrentLocale } from "@/locales/client";
+import { useTranslations, useLocale } from "@/lib/useTranslations";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
@@ -54,12 +54,16 @@ const navItems = [
 
 export default function AppBar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const t = useI18n();
-  const locale = useCurrentLocale();
+  const t = useTranslations();
+  const locale = useLocale();
   const isRtl = ["ur", "ur-Latn", "ar", "fa", "he"].includes(locale);
 
-  // Access Navigation translations directly
-  const nav = (t as any).Navigation || {};
+  // Get navigation translations
+  const getNavLabel = (key: string) => {
+    const navKey = `Navigation.${key}`;
+    const translation = t(navKey);
+    return translation !== navKey ? translation : key;
+  };
 
   const sheetVariants = {
     hidden: (isRtl: boolean) => ({
@@ -117,7 +121,7 @@ export default function AppBar() {
                   href={`/${locale}${item.href}`}
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
                 >
-                  {nav[item.label] || item.label}
+                  {getNavLabel(item.label)}
                 </Link>
               );
             }
@@ -134,7 +138,7 @@ export default function AppBar() {
                     onMouseLeave={() => setOpenMenu(null)}
                     className="flex rtl:flex-row items-center gap-1 cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground transition"
                   >
-                    <span>{nav[item.label] || item.label}</span>
+                    <span>{getNavLabel(item.label)}</span>
                     <ChevronDown
                       className={`h-3 w-3 mt-1 transition-transform ${
                         openMenu === item.label ? "rotate-180" : ""
@@ -157,7 +161,7 @@ export default function AppBar() {
                         href={`/${locale}${child.href}`}
                         className="rounded-md px-2 py-1.5 text-sm hover:bg-accent transition"
                       >
-                        {nav[child.label] || child.label}
+                        {getNavLabel(child.label)}
                       </Link>
                     ))}
                   </div>
@@ -214,7 +218,7 @@ export default function AppBar() {
                             className="border-none"
                           >
                             <AccordionTrigger className="py-3 text-base font-medium">
-                              {nav[item.label] || item.label}
+                              {getNavLabel(item.label)}
                             </AccordionTrigger>
                             <AccordionContent className="ps-4">
                               <div className="flex flex-col gap-3 pt-2">
@@ -224,7 +228,7 @@ export default function AppBar() {
                                     href={`/${locale}${child.href}`}
                                     className="text-sm text-muted-foreground hover:text-foreground"
                                   >
-                                    {nav[child.label] || child.label}
+                                    {getNavLabel(child.label)}
                                   </Link>
                                 ))}
                               </div>
@@ -240,7 +244,7 @@ export default function AppBar() {
                             href={`/${locale}${item.href}`}
                             className="block py-3 text-base font-medium"
                           >
-                            {nav[item.label] || item.label}
+                            {getNavLabel(item.label)}
                           </Link>
                         </motion.div>
                       ),

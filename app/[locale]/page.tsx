@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useI18n, useCurrentLocale } from "@/locales/client";
+import { useTranslations, useLocale } from "@/lib/useTranslations";
 import {
   Card,
   CardContent,
@@ -44,18 +44,39 @@ const featureIcons = [
 ];
 
 export default function Home() {
-  const t = useI18n();
-  const locale = useCurrentLocale();
-  const isRtl = ["ur", "ar", "fa", "he"].includes(locale);
+  const t = useTranslations();
+  const locale = useLocale();
+  const isRtl = ["ur", "ur-Latn", "ar", "fa", "he"].includes(locale);
   const slideFrom = isRtl ? 60 : -60;
 
-  // Access nested objects with proper typing
-  const sections = (t as any).sections as Array<{
-    title: string;
-    description: string;
-  }>;
+  // Get sections and services from translations
+  const getSections = () => {
+    try {
+      const sectionsData = t("sections");
+      return typeof sectionsData === "string"
+        ? []
+        : (sectionsData as Array<{
+            title: string;
+            description: string;
+          }>);
+    } catch {
+      return [];
+    }
+  };
 
-  const services = (t as any).services as Array<{ title: string }>;
+  const getServices = () => {
+    try {
+      const servicesData = t("services");
+      return typeof servicesData === "string"
+        ? []
+        : (servicesData as Array<{ title: string }>);
+    } catch {
+      return [];
+    }
+  };
+
+  const sections = getSections();
+  const services = getServices();
 
   return (
     <div className="relative bg-background min-h-screen overflow-x-hidden">
@@ -64,7 +85,7 @@ export default function Home() {
         <div className="absolute inset-0">
           <Image
             src="/images/qutbul-madar-main.webp"
-            alt={"suleman"}
+            alt={t("heroImageAlt") as string}
             fill
             priority
             className="object-cover brightness-90"
