@@ -1,13 +1,10 @@
-// middleware.ts (or src/middleware.ts)
+// middleware.ts (in project root, not in src/)
+
 import createMiddleware from "next-intl/middleware";
-import { routing } from "./i18n/routing"; // Adjust path if src/
+import { routing } from "./i18n/routing";
 
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: [
-    // Match all paths except internals, static, api, etc.
-    "/((?!_next|_vercel|api|.*\\..*).*)",
-    "/",
-  ],
+  matcher: ["/", "/(en|ur|ur-Latn|hi)/:path*"],
 };

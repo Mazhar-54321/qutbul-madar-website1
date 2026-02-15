@@ -2,10 +2,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    esmExternals: true,
-  },
+  // Add this to help with ES modules
+  transpilePackages: ["next-intl"],
 };
 
 export default withNextIntl(nextConfig);
