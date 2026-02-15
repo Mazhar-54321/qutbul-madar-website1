@@ -2,14 +2,13 @@
 
 import { createI18nMiddleware } from "next-international/middleware";
 
-const mmiddleware = createI18nMiddleware({
+const middleware = createI18nMiddleware({
   locales: ["en", "ur", "ur-Latn", "hi"],
   defaultLocale: "en",
-  urlMappingStrategy: "rewrite",
 });
 
-export default mmiddleware;
+export default middleware;
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|static|favicon.ico|.*\\..*).*)"],
 };
