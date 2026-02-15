@@ -9,37 +9,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLocale } from "next-intl"; // ← to read current locale
-import { usePathname, useRouter } from "next/navigation"; // ← key imports
+import { useCurrentLocale, useChangeLocale } from "@/locales/client";
+import { usePathname } from "next/navigation";
 import { languages } from "@/lib/languages";
 
 export default function LanguageSwitcher() {
-  const currentLocale = useLocale(); // real current locale from next-intl
-  const pathname = usePathname(); // e.g. "/about-us" or "/en/contact"
-  const router = useRouter();
+  const currentLocale = useCurrentLocale();
+  const changeLocale = useChangeLocale();
+  const pathname = usePathname();
 
-  // Optional: show current language in button (falls back nicely)
+  // Show current language in button
   const activeLang =
     languages.find((l) => l.code === currentLocale)?.label ?? "Language";
 
   const switchLanguage = (newLocale: string) => {
     if (newLocale === currentLocale) return;
 
-    // Remove old locale prefix from pathname if present
-    // pathname might be: "/en/about" or just "/about" (depending on middleware)
-    let newPath = pathname;
+    // Extract path without locale
     const segments = pathname.split("/").filter(Boolean);
+    let pathWithoutLocale = pathname;
 
+    // Remove current locale from path if present
     if (segments.length > 0 && languages.some((l) => l.code === segments[0])) {
-      // Old locale was in path → remove it
-      newPath = "/" + segments.slice(1).join("/");
+      pathWithoutLocale = "/" + segments.slice(1).join("/");
     }
 
-    // Add new locale prefix
-    newPath = `/${newLocale}${newPath === "/" ? "" : newPath}`;
-
-    // Navigate (replace to avoid adding to history)
-    router.replace(newPath);
+    // Change locale (next-international handles routing automatically)
+    changeLocale(newLocale as any);
   };
 
   return (
@@ -57,7 +53,7 @@ export default function LanguageSwitcher() {
             key={lang.code}
             onClick={() => switchLanguage(lang.code)}
             className="cursor-pointer"
-            disabled={lang.code === currentLocale} // optional: disable current
+            disabled={lang.code === currentLocale}
           >
             {lang.label}
           </DropdownMenuItem>

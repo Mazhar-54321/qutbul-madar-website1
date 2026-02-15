@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useTranslations, useLocale } from "next-intl";
+import { useI18n, useCurrentLocale } from "@/locales/client";
 import {
   Card,
   CardContent,
@@ -30,31 +30,32 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"; // ← shadcn carousel
+} from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 
+// Unique icons for features
+const featureIcons = [
+  <Zap key="zap" className="w-8 h-8 text-primary" />,
+  <HeartHandshake key="heart" className="w-8 h-8 text-primary" />,
+  <BookOpen key="book" className="w-8 h-8 text-primary" />,
+  <Users key="users" className="w-8 h-8 text-primary" />,
+  <Landmark key="landmark" className="w-8 h-8 text-primary" />,
+  <PhoneCall key="phone" className="w-8 h-8 text-primary" />,
+];
+
 export default function Home() {
-  const t = useTranslations();
-  const locale = useLocale();
+  const t = useI18n();
+  const locale = useCurrentLocale();
   const isRtl = ["ur", "ar", "fa", "he"].includes(locale);
   const slideFrom = isRtl ? 60 : -60;
 
-  const sections = t.raw("sections") as Array<{
+  // Access nested objects with proper typing
+  const sections = (t as any).sections as Array<{
     title: string;
     description: string;
   }>;
 
-  const services = t.raw("services") as Array<{ title: string }>;
-
-  // Unique icons for features
-  const featureIcons = [
-    <Zap className="w-8 h-8 text-primary" />,
-    <HeartHandshake className="w-8 h-8 text-primary" />,
-    <BookOpen className="w-8 h-8 text-primary" />,
-    <Users className="w-8 h-8 text-primary" />,
-    <Landmark className="w-8 h-8 text-primary" />,
-    <PhoneCall className="w-8 h-8 text-primary" />,
-  ];
+  const services = (t as any).services as Array<{ title: string }>;
 
   return (
     <div className="relative bg-background min-h-screen overflow-x-hidden">
@@ -63,7 +64,7 @@ export default function Home() {
         <div className="absolute inset-0">
           <Image
             src="/images/qutbul-madar-main.webp"
-            alt={t("heroImageAlt")}
+            alt={"suleman"}
             fill
             priority
             className="object-cover brightness-90"
@@ -78,7 +79,7 @@ export default function Home() {
           className="relative z-10 px-6 text-center max-w-5xl mx-auto"
         >
           <h1 className="text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-white drop-shadow-2xl leading-tight">
-            {t("heroTitle", { default: "Qutbul Madar" })}
+            {t("heroTitle")}
           </h1>
         </motion.div>
 
@@ -103,7 +104,7 @@ export default function Home() {
             className="max-w-5xl mx-auto text-center"
           >
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-10 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              {t("introTitle", { default: "Our Sacred Journey" })}
+              {t("introTitle")}
             </h2>
             <Separator className="w-24 h-1 mx-auto mb-12 bg-primary/60" />
             <p className="text-xl sm:text-2xl leading-relaxed text-muted-foreground font-light">
@@ -130,7 +131,7 @@ export default function Home() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sections.map((el, idx) => (
+            {sections?.map((el, idx) => (
               <motion.div
                 key={el.title}
                 initial={{ opacity: 0, y: 60 }}
@@ -177,7 +178,7 @@ export default function Home() {
           </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((el, idx) => (
+            {services?.map((el, idx) => (
               <motion.div
                 key={el.title}
                 initial={{ opacity: 0, y: 60 }}
@@ -197,12 +198,12 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <Link
-                      href={`/services/${el.title
+                      href={`/${locale}/services/${el.title
                         .toLowerCase()
                         .replace(/\s+/g, "-")}`}
                       className="inline-flex items-center text-primary font-medium hover:text-primary/80 transition-colors"
                     >
-                      {t("learnMore", { default: "Learn More" })}
+                      {t("learnMore")}
                       <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </CardContent>
@@ -213,7 +214,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= NEW: IMAGE GALLERY SECTION ================= */}
       {/* ================= IMAGE GALLERY ================= */}
       <section className="relative py-16 md:py-32 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12">
@@ -225,7 +225,7 @@ export default function Home() {
             className="text-center mb-10 md:mb-16"
           >
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold mb-4">
-              {t("imageGallery", { default: "Image Gallery" })}
+              {t("image-gallery")}
             </h2>
             <Separator className="w-24 h-1 mx-auto bg-primary/60" />
           </motion.div>
@@ -243,7 +243,6 @@ export default function Home() {
                 "/images/image2.webp",
                 "/images/image3.webp",
                 "/images/image4.webp",
-                // add more images here if you have
               ].map((imgSrc, idx) => (
                 <CarouselItem
                   key={idx}
@@ -267,31 +266,23 @@ export default function Home() {
               ))}
             </CarouselContent>
 
-            {/* Arrows only on larger screens */}
             <div className="hidden sm:block">
               <CarouselPrevious className="left-2 md:left-4" />
               <CarouselNext className="right-2 md:right-4" />
             </div>
 
-            {/* Dots visible on all screens – clean & touch-friendly */}
             <div className="mt-6 flex justify-center gap-3">
-              {Array.from({ length: 4 }).map(
-                (
-                  _,
-                  idx, // change 4 to your actual image count
-                ) => (
-                  <button
-                    key={idx}
-                    className={cn(
-                      "h-2.5 w-2.5 rounded-full transition-all",
-                      idx === 0
-                        ? "bg-primary w-6"
-                        : "bg-muted hover:bg-primary/70",
-                    )}
-                    // You can make them clickable if you add carousel API later
-                  />
-                ),
-              )}
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <button
+                  key={idx}
+                  className={cn(
+                    "h-2.5 w-2.5 rounded-full transition-all",
+                    idx === 0
+                      ? "bg-primary w-6"
+                      : "bg-muted hover:bg-primary/70",
+                  )}
+                />
+              ))}
             </div>
           </Carousel>
         </div>
@@ -299,13 +290,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Unique icons for features
-const featureIcons = [
-  <Zap className="w-8 h-8 text-primary" />,
-  <HeartHandshake className="w-8 h-8 text-primary" />,
-  <BookOpen className="w-8 h-8 text-primary" />,
-  <Users className="w-8 h-8 text-primary" />,
-  <Landmark className="w-8 h-8 text-primary" />,
-  <PhoneCall className="w-8 h-8 text-primary" />,
-];

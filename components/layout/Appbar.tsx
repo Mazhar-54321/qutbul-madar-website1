@@ -12,13 +12,10 @@ import {
 } from "@/components/ui/accordion";
 import LanguageSwitcher from "../shared/LanguageSwitcher";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { useLocale, useTranslations } from "next-intl";
+import { useI18n, useCurrentLocale } from "@/locales/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
-// Remove: import { isRtlLocale } from "@/i18n";  ← no longer needed here
-
-// Keep navItems as-is for now (you'll translate labels later with useTranslations)
 const navItems = [
   { label: "Home", href: "/" },
   {
@@ -57,33 +54,38 @@ const navItems = [
 
 export default function AppBar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const t = useTranslations("Navigation");
-  const locale = useLocale();
-  const isRtl = ["ur"].includes(locale);
+  const t = useI18n();
+  const locale = useCurrentLocale();
+  const isRtl = ["ur", "ur-Latn", "ar", "fa", "he"].includes(locale);
+
+  // Access Navigation translations directly
+  const nav = (t as any).Navigation || {};
+
   const sheetVariants = {
     hidden: (isRtl: boolean) => ({
-      x: isRtl ? "-100%" : "100%", // start off-screen (left in RTL, right in LTR)
+      x: isRtl ? "-100%" : "100%",
       opacity: 0,
     }),
     visible: {
       x: 0,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 300,
         damping: 30,
         duration: 0.4,
       },
     },
     exit: (isRtl: boolean) => ({
-      x: isRtl ? "-100%" : "100%", // slide back out
+      x: isRtl ? "-100%" : "100%",
       opacity: 0,
       transition: {
         duration: 0.3,
-        ease: "easeIn",
+        ease: "easeIn" as const,
       },
     }),
-  } as const;
+  };
+
   const innerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -100,8 +102,8 @@ export default function AppBar() {
   return (
     <header className="fixed top-0 inset-x-0 z-50 h-16 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        {/* Logo - stays left in LTR, right in RTL automatically via flex justify-between */}
-        <Link href="/" className="text-xl font-bold">
+        {/* Logo */}
+        <Link href={`/${locale}`} className="text-xl font-bold">
           MyBrand
         </Link>
 
@@ -112,10 +114,10 @@ export default function AppBar() {
               return (
                 <Link
                   key={item.label}
-                  href={item.href!}
+                  href={`/${locale}${item.href}`}
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition"
                 >
-                  {t(item.label)}
+                  {nav[item.label] || item.label}
                 </Link>
               );
             }
@@ -132,11 +134,11 @@ export default function AppBar() {
                     onMouseLeave={() => setOpenMenu(null)}
                     className="flex rtl:flex-row items-center gap-1 cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground transition"
                   >
-                    <span>{t(item.label)}</span>
+                    <span>{nav[item.label] || item.label}</span>
                     <ChevronDown
                       className={`h-3 w-3 mt-1 transition-transform ${
                         openMenu === item.label ? "rotate-180" : ""
-                      } rtl:rotate-0 `} // flip behavior in RTL (down arrow often stays down or use mirror icon)
+                      } rtl:rotate-0`}
                     />
                   </span>
                 </PopoverTrigger>
@@ -152,10 +154,10 @@ export default function AppBar() {
                     {item.children.map((child) => (
                       <Link
                         key={child.href}
-                        href={child.href}
+                        href={`/${locale}${child.href}`}
                         className="rounded-md px-2 py-1.5 text-sm hover:bg-accent transition"
                       >
-                        {t(child.label)}
+                        {nav[child.label] || child.label}
                       </Link>
                     ))}
                   </div>
@@ -165,7 +167,7 @@ export default function AppBar() {
           })}
         </nav>
 
-        {/* Desktop Language - will move to right in RTL automatically */}
+        {/* Desktop Language */}
         <div className="hidden md:flex">
           <LanguageSwitcher />
         </div>
@@ -212,17 +214,17 @@ export default function AppBar() {
                             className="border-none"
                           >
                             <AccordionTrigger className="py-3 text-base font-medium">
-                              {t(item.label)}
+                              {nav[item.label] || item.label}
                             </AccordionTrigger>
                             <AccordionContent className="ps-4">
                               <div className="flex flex-col gap-3 pt-2">
                                 {item.children.map((child) => (
                                   <Link
                                     key={child.href}
-                                    href={child.href}
+                                    href={`/${locale}${child.href}`}
                                     className="text-sm text-muted-foreground hover:text-foreground"
                                   >
-                                    {t(child.label)}
+                                    {nav[child.label] || child.label}
                                   </Link>
                                 ))}
                               </div>
@@ -235,10 +237,10 @@ export default function AppBar() {
                           variants={innerVariants as any}
                         >
                           <Link
-                            href={item.href!}
+                            href={`/${locale}${item.href}`}
                             className="block py-3 text-base font-medium"
                           >
-                            {t(item.label)}
+                            {nav[item.label] || item.label}
                           </Link>
                         </motion.div>
                       ),
