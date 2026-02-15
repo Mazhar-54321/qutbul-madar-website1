@@ -4,10 +4,8 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["next-intl"],
-  experimental: {
-    serverComponentsExternalPackages: ["next-intl"],
-  },
+  // Remove both transpilePackages and serverComponentsExternalPackages
+  // Let next-intl handle it automatically
 };
 
 export default withNextIntl(nextConfig);
