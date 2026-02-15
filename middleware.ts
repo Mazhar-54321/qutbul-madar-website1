@@ -1,7 +1,7 @@
-// middleware.ts (in project root, not in src/)
+// middleware.ts (in project root)
 
 import createMiddleware from "next-intl/middleware";
-import { routing } from "./i18n/routing";
+import { routing } from "./i18n/routing"; // ← Changed to src/i18n/routing
 
 export default createMiddleware(routing);
 
